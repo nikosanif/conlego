@@ -1,9 +1,9 @@
 import _ from 'lodash';
 import { Db } from 'mongodb';
 import { connect, ConnectionOptions } from 'mongoose';
-import { logger } from '@app/utils/logger';
-import { ILoader } from './loader.interface';
-import { config } from '@app/config/environment';
+import { config } from '@config';
+import { ILoader } from '@core/types';
+import { logger } from '@core/utils/logger';
 
 
 export class MongooseLoader implements ILoader {

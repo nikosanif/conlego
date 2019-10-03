@@ -1,8 +1,9 @@
-import { prop, Typegoose } from '@hasezoey/typegoose';
-import { ModelFactory, ModelDocumentType, IResourceModel } from '@app/models/shared';
+import { prop } from '@typegoose/typegoose';
+import { ModelFactory } from '@core/model-factory';
+import { IResourceModel, ModelDocumentType } from '@core/types';
 
 
-class Notification extends Typegoose implements IResourceModel {
+class Notification implements IResourceModel {
 
   public hidden: string[] = [];
   public readonly: string[] = [];

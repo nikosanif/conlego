@@ -1,4 +1,4 @@
-import { isProd } from '@app/config/environment';
+import { isProd } from '@config';
 import { createLogger, LoggerOptions, transports, Logger, format } from 'winston';
 
 

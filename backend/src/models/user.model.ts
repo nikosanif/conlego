@@ -1,21 +1,11 @@
 import crypto from 'crypto';
-import { pre, prop, instanceMethod, Typegoose } from '@hasezoey/typegoose';
-import { ModelFactory, ModelDocumentType, IResourceModel } from '@app/models/shared';
+import { pre, prop } from '@typegoose/typegoose';
+import { ModelFactory } from '@core/model-factory';
+import { IResourceModel, ModelDocumentType } from '@core/types';
 
 
-@pre<User>('save', async function (next) {
-  // Handle new/update passwords
-  if (!this.isModified('password')) { return; }
-
-  // validate presence of password
-  if (!(this.password && this.password.length)) {
-    throw new Error('Invalid password');
-  }
-
-  this.salt = await this.makeSalt();
-  this.password = this.encryptPassword(this.password);
-})
-class User extends Typegoose implements IResourceModel {
+@pre<User>('save', handlePasswordChange)
+class User implements IResourceModel {
 
   public hidden: string[] = ['password', 'salt'];
   public readonly: string[] = ['password', 'salt'];
@@ -29,10 +19,7 @@ class User extends Typegoose implements IResourceModel {
   @prop({ required: true })
   public lastName: string;
 
-  @prop({
-    required: true,
-    unique: true,
-  })
+  @prop({ required: true, unique: true, })
   public email: string;
 
   @prop({ required: true })
@@ -56,7 +43,6 @@ class User extends Typegoose implements IResourceModel {
    * @param {string} password
    * @returns {string}
    */
-  @instanceMethod
   public encryptPassword(password: string): string {
 
     // Settings https://cryptosense.com/blog/parameter-choice-for-pbkdf2/
@@ -76,7 +62,6 @@ class User extends Typegoose implements IResourceModel {
    * @param {string} password
    * @returns
    */
-  @instanceMethod
   public authenticate(password: string) {
     return this.password === this.encryptPassword(password);
   }
@@ -87,7 +72,6 @@ class User extends Typegoose implements IResourceModel {
    * @param {number} [byteSize=16]
    * @returns {Promise<string>}
    */
-  @instanceMethod
   public makeSalt(byteSize: number = 16): Promise<string> {
     return new Promise((resolve, reject) => {
 
@@ -103,6 +87,22 @@ class User extends Typegoose implements IResourceModel {
   // #endregion Instance Methods
   // ------------------------------------------
 
+}
+
+/**
+ * Pre save hook for handling password changes
+ */
+async function handlePasswordChange(next: (...args: any[]) => void) {
+  // Handle new/update passwords
+  if (!this.isModified('password')) { return; }
+
+  // validate presence of password
+  if (!(this.password && this.password.length)) {
+    throw new Error('Invalid password');
+  }
+
+  this.salt = await this.makeSalt();
+  this.password = this.encryptPassword(this.password);
 }
 
 

@@ -12,8 +12,8 @@ export interface IResourceModel {
   hidden: string[];
 
   /**
-   * Readonly properties will never be updated
-   * They are configured only on creation
+   * Readonly properties will never be updated.
+   * They are configured only on creation of model.
    *
    * @type {string[]}
    */

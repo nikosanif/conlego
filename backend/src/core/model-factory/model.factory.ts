@@ -1,24 +1,24 @@
+import { Model, model, Schema } from 'mongoose';
+import { buildSchema } from '@typegoose/typegoose';
 import mongoosePaginate from 'mongoose-paginate-v2';
 import mongooseUniqueValidator from 'mongoose-unique-validator';
-import { Typegoose } from '@hasezoey/typegoose';
-import { Model, model, Schema } from 'mongoose';
-import { ModelDocumentType, IResourceModel } from './model-types.model';
-import { DefaultSchemaOptions } from './schema-options.model';
+import { defaultSchemaOptions } from './schema-options';
+import { IResourceModel, ModelDocumentType } from '@core/types';
 
 
 export class ModelFactory<T> {
 
-  private instance: T & IResourceModel & Typegoose;
+  private instance: T & IResourceModel;
   private instanceSchema: Schema<T>;
   private instanceModel: Model<ModelDocumentType<T>>;
-  private tConstructor: new () => T & IResourceModel & Typegoose;
+  private tConstructor: new () => T & IResourceModel;
 
   /**
    * Creates an instance of ModelFactory.
    *
    * @param {(new () => T & IResourceModel & Typegoose)} tConstructor Model class constructor
    */
-  constructor(tConstructor: new () => T & IResourceModel & Typegoose) {
+  constructor(tConstructor: new () => T & IResourceModel) {
     this.tConstructor = tConstructor;
     this.instance = new this.tConstructor();
   }
@@ -47,11 +47,7 @@ export class ModelFactory<T> {
     if (this.instanceSchema) { return this.instanceSchema; }
 
     // build schema based on typegoose annotations
-    this.instanceSchema = this.instance
-      .buildSchema(
-        this.tConstructor,
-        { schemaOptions: DefaultSchemaOptions }
-      );
+    this.instanceSchema = buildSchema<T, any>(this.tConstructor, defaultSchemaOptions);
 
     // Add static method returning readonly properties
     this.instanceSchema.static('getReadonlyProperties', () => this.instance.readonly || []);

@@ -2,8 +2,8 @@ import http from 'http';
 import express from 'express';
 import { Db } from 'mongodb';
 import { logger } from './utils/logger';
-import { config, getHostDomain } from './config/environment';
-import { MongooseLoader, ExpressLoader, SocketsLoader } from './loaders';
+import { config, getHostDomain } from '@config';
+import { MongooseLoader, ExpressLoader } from './loaders';
 
 
 export class Server {
@@ -25,11 +25,9 @@ export class Server {
 
         // Setup express and API routes
         this.app = await new ExpressLoader().load();
+
+        // Create server with http package
         const server = http.createServer(this.app);
-
-        // Start socket server
-        await new SocketsLoader().load(server);
-
 
         // Register server events
         server.on('error', (error: any) => reject(error));

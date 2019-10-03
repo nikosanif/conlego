@@ -33,7 +33,9 @@ export const config = {
         id: 'Avn3NVJfH9',
         secret: 'RDHndORacDbzAaBkpUh1xUphLqwkEdt7',
         redirectUris: ['/'],
-        // Available grants options are 'password', 'refresh_token', 'client_credentials', 'authorization_code'
+        // Available grants options are:
+        // Implemented: 'password', 'refresh_token', 'client_credentials'
+        // Not implemented: 'authorization_code'
         grants: ['password', 'refresh_token']
       }
     ]

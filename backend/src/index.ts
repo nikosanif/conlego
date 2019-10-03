@@ -1,7 +1,7 @@
 import 'module-alias/register';
 
-import { Server } from './server';
-import { logger } from './utils/logger';
+import { Server } from '@core/server';
+import { logger } from '@core/utils/logger';
 
 
 async function bootstrap() {

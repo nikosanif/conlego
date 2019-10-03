@@ -1,6 +1,6 @@
 import { SchemaOptions } from 'mongoose';
 
-export const DefaultSchemaOptions: SchemaOptions = {
+export const defaultSchemaOptions: SchemaOptions = {
   _id: true,
   id: false,
   timestamps: true,
