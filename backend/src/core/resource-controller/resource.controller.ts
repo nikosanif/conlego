@@ -105,9 +105,16 @@ export class ResourceController<T extends Document> implements ICrudController {
   /**
    * Create a new resource model
    */
-  public create() {
+  public create(blacklist: string[] = []) {
     return async (req: Request, res: Response, next?: NextFunction): Promise<Response> => {
       try {
+        // delete blacklisted properties from body
+        const defaultBlacklist = ['_id', 'createdAt', 'updatedAt', ...blacklist];
+        for (const key of defaultBlacklist) {
+          delete req.body[key];
+        }
+
+        // create new resource
         const resource = await new this.modelSchema(req.body)
           .save();
 
