@@ -33,9 +33,9 @@ export interface ICrudRouteOptions {
  */
 export interface ICrudController {
   applyRoutes(options?: ICrudRouteOptions[]): Router;
-  getAll(): (req: Request, res: Response, next?: NextFunction) => Promise<Response>;
+  index(): (req: Request, res: Response, next?: NextFunction) => Promise<Response>;
   create(): (req: Request, res: Response, next?: NextFunction) => Promise<Response>;
-  getOne(id?: string): (req: Request, res: Response, next?: NextFunction) => Promise<Response>;
+  show(id?: string): (req: Request, res: Response, next?: NextFunction) => Promise<Response>;
   update(id?: string, blacklist?: string[]): (req: Request, res: Response, next?: NextFunction) => Promise<Response>;
   delete(id?: string): (req: Request, res: Response, next?: NextFunction) => Promise<Response>;
 }

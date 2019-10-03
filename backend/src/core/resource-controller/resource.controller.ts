@@ -40,7 +40,7 @@ export class ResourceController<T extends Document> implements ICrudController {
 
       switch (o.operation) {
         case 'index':
-          router.get('/', middleware, this.getAll());
+          router.get('/', middleware, this.index());
           break;
 
         case 'create':
@@ -48,7 +48,7 @@ export class ResourceController<T extends Document> implements ICrudController {
           break;
 
         case 'show':
-          router.get('/:id', middleware, this.getOne());
+          router.get('/:id', middleware, this.show());
           break;
 
         case 'update':
@@ -70,7 +70,7 @@ export class ResourceController<T extends Document> implements ICrudController {
   /**
    * Get all resources paginated
    */
-  public getAll() {
+  public index() {
     return async (req: Request, res: Response, next?: NextFunction): Promise<Response> => {
       try {
         const queryOptions = this.parseQueryParameters(req);
@@ -134,7 +134,7 @@ export class ResourceController<T extends Document> implements ICrudController {
    * @param {string} [id] Model id to be retrieved
    * @returns
    */
-  public getOne(id?: string) {
+  public show(id?: string) {
     return async (req: Request, res: Response, next?: NextFunction): Promise<Response> => {
       try {
         const modelId = id || req.params.id;
