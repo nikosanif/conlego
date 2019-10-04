@@ -7,7 +7,7 @@ import { MethodNotAllowed } from 'http-errors';
 import { apiRouter } from '@app/api';
 import { ILoader } from '@core/types';
 import { logger } from '@core/utils/logger';
-import { GlobalErrorHandlerMiddleware, MongooseQueryParserMiddleware } from '@app/middlewares';
+import { GlobalErrorHandlerMiddleware, MongooseQueryParserMiddleware } from '@core/middlewares';
 
 
 export class ExpressLoader implements ILoader {

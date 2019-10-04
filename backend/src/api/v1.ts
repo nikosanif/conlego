@@ -1,5 +1,5 @@
 import * as express from 'express';
-import { AuthenticatedMiddleware } from '@app/middlewares';
+import { AuthenticatedMiddleware } from '@core/middlewares';
 import { UserController } from './controllers/user.controller';
 import { NotificationModel, INotification } from '@app/models';
 import { ResourceController } from '@core/resource-controller';
