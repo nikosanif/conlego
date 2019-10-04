@@ -1,5 +1,7 @@
 import * as express from 'express';
-import { UserModel, IUser } from '@app/models';
+import { UserController } from './user.controller';
+import { AuthenticatedMiddleware } from '@app/middlewares';
+import { NotificationModel, INotification } from '@app/models';
 import { ResourceController } from '@app/core/resource-controller';
 
 
@@ -9,7 +11,13 @@ apiV1Router
   // User routes
   .use(
     '/users',
-    new ResourceController<IUser>(UserModel).applyRoutes()
+    new UserController().applyRoutes()
+  )
+  // Notification routes
+  .use(
+    '/notifications',
+    AuthenticatedMiddleware(),
+    new ResourceController<INotification>(NotificationModel).applyRoutes()
   );
 
 

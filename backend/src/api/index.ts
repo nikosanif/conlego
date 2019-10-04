@@ -1,21 +1,11 @@
-import * as express from 'express';
+import express from 'express';
+import { authRouter } from './auth';
 import { apiV1Router } from './v1';
 
 
-export class Api {
+const apiRouter = express.Router();
 
-  /**
-   * Apply all app routes including models and auth
-   *
-   * @returns {Promise<express.Router>}
-   */
-  public static async applyRoutes(): Promise<express.Router> {
+apiRouter.use('/api/auth/', authRouter);
+apiRouter.use('/api/v1/', apiV1Router);
 
-    const apiRouter = express.Router();
-
-    apiRouter.use('/api/v1/', apiV1Router);
-
-    return apiRouter;
-  }
-
-}
+export { apiRouter };

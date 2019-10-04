@@ -2,7 +2,6 @@ import express from 'express';
 import mongoose from 'mongoose';
 import { INTERNAL_SERVER_ERROR, UNPROCESSABLE_ENTITY } from 'http-status-codes';
 
-
 /**
  * Middleware for handling global errors in express
  *

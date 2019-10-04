@@ -4,7 +4,7 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import methodOverride from 'method-override';
 import { MethodNotAllowed } from 'http-errors';
-import { Api } from '@app/api';
+import { apiRouter } from '@app/api';
 import { ILoader } from '@core/types';
 import { logger } from '@core/utils/logger';
 import { GlobalErrorHandlerMiddleware } from '@app/middlewares';
@@ -29,8 +29,7 @@ export class ExpressLoader implements ILoader {
         .use(methodOverride());
 
       // setup primary app routes.
-      application
-        .use(await Api.applyRoutes());
+      application.use(apiRouter);
 
       // all other routes should return 405 error (Method Not Allowed)
       application

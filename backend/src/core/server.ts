@@ -3,7 +3,7 @@ import express from 'express';
 import { Db } from 'mongodb';
 import { logger } from './utils/logger';
 import { config, getHostDomain } from '@config';
-import { MongooseLoader, ExpressLoader } from './loaders';
+import { MongooseLoader, ExpressLoader, AuthLoader } from './loaders';
 
 
 export class Server {
@@ -22,7 +22,8 @@ export class Server {
 
         // Setup and connect database
         this.dbConnection = await new MongooseLoader().load();
-
+        // Setup oauth2 server
+        await new AuthLoader().load();
         // Setup express and API routes
         this.app = await new ExpressLoader().load();
 
