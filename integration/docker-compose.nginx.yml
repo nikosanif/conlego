@@ -1,0 +1,27 @@
+# ---------------------------------------------------------------------------------
+# Docker compose file for production, for enabling  this execute:
+# docker-compose -f docker-compose.yml -f docker-compose.nginx.yml up -d --build
+# OR
+# Copy and rename this file as docker-compose.override.yml and run:
+# docker-compose up -d --build
+# ---------------------------------------------------------------------------------
+
+version: "3.7"
+
+services: 
+
+  nginx:
+    image: nginx
+    container_name: ${APP_NAME}-nginx
+    restart: always
+    depends_on:
+      - backend
+      - frontend
+    ports:
+      - ${PROD_PORT}:80
+    volumes: 
+      - ./config/nginx/conf.d:/etc/nginx/conf.d
+      - ./config/nginx/nginx.conf:/etc/nginx/nginx.conf
+    networks:
+      - integration-network
+      

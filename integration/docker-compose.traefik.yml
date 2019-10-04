@@ -1,6 +1,6 @@
 # ---------------------------------------------------------------------------------
 # Docker compose file for production, for enabling  this execute:
-# docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+# docker-compose -f docker-compose.yml -f docker-compose.traefik.yml up -d --build
 # OR
 # Copy and rename this file as docker-compose.override.yml and run:
 # docker-compose up -d --build
@@ -9,13 +9,3 @@
 version: "3.7"
 
 services: 
-
-  backend:
-    environment:
-      - ENVIRONMENT=production
-      - PROTOCOL=${PROD_PROTOCOL}
-      - HOST=${PROD_HOST}
-      - EXPOSED_PORT=${PROD_PORT}
-
-
-      
