@@ -1,6 +1,6 @@
 import * as express from 'express';
-import { UserController } from './user.controller';
 import { AuthenticatedMiddleware } from '@app/middlewares';
+import { UserController } from './controllers/user.controller';
 import { NotificationModel, INotification } from '@app/models';
 import { ResourceController } from '@app/core/resource-controller';
 
