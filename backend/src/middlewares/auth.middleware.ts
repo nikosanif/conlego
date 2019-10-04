@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response, NextFunction, RequestHandler } from 'express';
 import { DIContainer } from '@core/di-container';
 import { OAuth2Server } from '@core/auth/oauth2';
 
@@ -7,8 +7,9 @@ import { OAuth2Server } from '@core/auth/oauth2';
  * the user object to the request if authenticated.
  *
  * @export
+ * @returns {RequestHandler}
  */
-export function AuthenticatedMiddleware() {
+export function AuthenticatedMiddleware(): RequestHandler {
   return (req: Request, res: Response, next: NextFunction) => DIContainer
     .get(OAuth2Server)
     .authenticate()(req, res, next);
@@ -18,23 +19,23 @@ export function AuthenticatedMiddleware() {
  * Authorizes a token request.
  *
  * @export
+ * @returns {RequestHandler}
  */
-export function AuthorizedMiddleware() {
+export function AuthorizedMiddleware(): RequestHandler {
   return (req: Request, res: Response, next: NextFunction) => DIContainer
     .get(OAuth2Server)
     .authorize()(req, res, next);
 }
 
 /**
- * Checks if the user role meets
- * the minimum requirements of the route
+ * Validates a given token
  *
  * @export
- * @param {string} role
- * @returns
+ * @param {string} token
+ * @returns {Promise<boolean>}
  */
-export function HasRoleMiddleware(role: string) {
-  return (req: Request, res: Response, next: NextFunction) => DIContainer
+export function ValidateAccessTokenMiddleware(token: string): Promise<boolean> {
+  return DIContainer
     .get(OAuth2Server)
-    .hasRole(role)(req, res, next);
+    .validateAccessToken(token);
 }

@@ -2,7 +2,7 @@ import * as express from 'express';
 import { AuthenticatedMiddleware } from '@app/middlewares';
 import { UserController } from './controllers/user.controller';
 import { NotificationModel, INotification } from '@app/models';
-import { ResourceController } from '@app/core/resource-controller';
+import { ResourceController } from '@core/resource-controller';
 
 
 const apiV1Router = express.Router();

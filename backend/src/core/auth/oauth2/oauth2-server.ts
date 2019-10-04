@@ -73,6 +73,21 @@ export class OAuth2Server {
   }
 
   /**
+   * Indicates whether the given token is valid or not
+   *
+   * @param {string} accessToken
+   */
+  public async validateAccessToken(accessToken: string): Promise<boolean> {
+    const token = await this.oauth2Model.getAccessToken(accessToken);
+    if (!token) { return false; }
+
+    // check if token has expired
+    const expiresAt = new Date(token.accessTokenExpiresAt);
+    const now = new Date();
+    return expiresAt > now;
+  }
+
+  /**
    * Check if user has valid role
    *
    * @param {string} role
