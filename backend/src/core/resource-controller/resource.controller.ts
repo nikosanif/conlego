@@ -73,7 +73,7 @@ export class ResourceController<T extends Document> implements ICrudController {
   public index() {
     return async (req: Request, res: Response, next?: NextFunction): Promise<Response> => {
       try {
-        const queryOptions = this.parseQueryParameters(req);
+        const queryOptions = req.paginationOptions;
         let resources: PaginateResult<T> | T[];
 
         if ((this.modelSchema as PaginateModel<T>).paginate) {
@@ -138,12 +138,12 @@ export class ResourceController<T extends Document> implements ICrudController {
     return async (req: Request, res: Response, next?: NextFunction): Promise<Response> => {
       try {
         const modelId = id || req.params.id;
-        const queryOptions = this.parseQueryParameters(req);
+        const queryOptions = req.mongooseQueryOptions as QueryOptions;
 
         const resource = await this.modelSchema
           .findOne({ _id: modelId })
-          .select(queryOptions.options.select)
-          .populate(queryOptions.options.populate)
+          .select(queryOptions.select)
+          .populate(queryOptions.populate)
           .orFail(new NotFound())
           .exec();
 
@@ -224,45 +224,6 @@ export class ResourceController<T extends Document> implements ICrudController {
   }
 
   // #endregion CRUD methods
-  // --------------------------------------
-
-  // #region Helpers methods
-
-  /**
-   * Parse all query params from URL
-   *
-   * @protected
-   * @param {Request} req
-   * @param {string[]} [blacklist=[]]
-   * @param {string} [skipKey='page']
-   * @param {string} [limitKey='perPage']
-   * @returns {{ query: QueryOptions['filter'], options: PaginateOptions }}
-   */
-  protected parseQueryParameters(
-    req: Request,
-    blacklist: string[] = [],
-    skipKey: string = 'page',
-    limitKey: string = 'perPage'
-  ): { query: QueryOptions['filter'], options: PaginateOptions } {
-
-    const queryOptions = new MongooseQueryParser({ limitKey, skipKey, blacklist })
-      .parse(req.query);
-
-    return {
-      query: queryOptions.filter,
-      options: {
-        select: queryOptions.select,
-        sort: queryOptions.sort,
-        populate: queryOptions.populate,
-        page: queryOptions.skip || 1,
-        lean: false,
-        leanWithId: false,
-        limit: queryOptions.limit || 10,
-      }
-    };
-  }
-
-  // #endregion Helpers methods
   // --------------------------------------
 
 }

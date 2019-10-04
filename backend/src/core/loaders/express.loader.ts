@@ -7,7 +7,7 @@ import { MethodNotAllowed } from 'http-errors';
 import { apiRouter } from '@app/api';
 import { ILoader } from '@core/types';
 import { logger } from '@core/utils/logger';
-import { GlobalErrorHandlerMiddleware } from '@app/middlewares';
+import { GlobalErrorHandlerMiddleware, MongooseQueryParserMiddleware } from '@app/middlewares';
 
 
 export class ExpressLoader implements ILoader {
@@ -26,7 +26,10 @@ export class ExpressLoader implements ILoader {
         .use(morgan('dev'))
         .use(bodyParser.json({ limit: '5MB' }))
         .use(bodyParser.urlencoded({ extended: true }))
-        .use(methodOverride());
+        .use(methodOverride())
+
+        // Add middlewares
+        .use(MongooseQueryParserMiddleware());
 
       // setup primary app routes.
       application.use(apiRouter);
@@ -38,7 +41,7 @@ export class ExpressLoader implements ILoader {
 
       // global error handler
       // !it has to be the last
-      application.use(GlobalErrorHandlerMiddleware);
+      application.use(GlobalErrorHandlerMiddleware());
 
       return application;
 
