@@ -4,7 +4,7 @@ import { ModelFactory } from '@core/model-factory';
 import { IResourceModel, ModelDocumentType } from '@core/types';
 
 
-@pre<User>('save', handlePasswordChange)
+@pre<User>('save', handlePasswordChangeHook)
 class User implements IResourceModel {
 
   public hidden: string[] = ['password', 'salt'];
@@ -92,7 +92,7 @@ class User implements IResourceModel {
 /**
  * Pre save hook for handling password changes
  */
-async function handlePasswordChange(next: (...args: any[]) => void) {
+async function handlePasswordChangeHook(next: (...args: any[]) => void) {
   // Handle new/update passwords
   if (!this.isModified('password')) { return; }
 
