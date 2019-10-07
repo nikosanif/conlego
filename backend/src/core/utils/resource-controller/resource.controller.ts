@@ -1,12 +1,11 @@
 import { NotFound } from 'http-errors';
-import { QueryOptions } from 'mongoose-query-parser';
 import { OK, CREATED, NO_CONTENT } from 'http-status-codes';
 import { Request, Response, Router, NextFunction } from 'express';
-import { Model, Document, PaginateModel, PaginateResult, ResourceModel } from 'mongoose';
+import { Model, Document, PaginateResult, ResourceModel } from 'mongoose';
 import { ResourceProvider } from '@core/utils/resource-provider';
 import { ICrudController, ICrudRouteOptions, IApiController } from '@core/types';
 
-export class ResourceController<T extends Document>
+export abstract class ResourceController<T extends Document>
   extends ResourceProvider<T> implements ICrudController, IApiController {
 
   constructor(model: Model<T>) {
