@@ -23,22 +23,6 @@ export function MongooseQueryParserMiddleware(
     // attach parsed query params
     req.mongooseQueryOptions = queryOptions;
 
-    // attach pagination options
-    // as they are declared at:
-    // https://www.npmjs.com/package/mongoose-paginate-v2
-    req.paginationOptions = {
-      query: queryOptions.filter,
-      options: {
-        select: queryOptions.select,
-        sort: queryOptions.sort,
-        populate: queryOptions.populate,
-        page: queryOptions.skip || 1,
-        lean: false,
-        leanWithId: false,
-        limit: queryOptions.limit || 10,
-      }
-    };
-
     next();
   };
 }
