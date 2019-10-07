@@ -3,7 +3,7 @@ import express from 'express';
 import { Db } from 'mongodb';
 import { logger } from './utils/logger';
 import { config, getHostDomain } from '@config';
-import { MongooseLoader, ExpressLoader, AuthLoader } from './loaders';
+import { MongooseLoader, ExpressLoader, AuthLoader, SocketsLoader } from './loaders';
 
 
 export class Server {
@@ -29,6 +29,9 @@ export class Server {
 
         // Create server with http package
         const server = http.createServer(this.app);
+
+        // Create socket server and load service
+        await new SocketsLoader().load(server);
 
         // Register server events
         server.on('error', (error: any) => reject(error));

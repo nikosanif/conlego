@@ -6,6 +6,12 @@ import { OAuth2Server, OAuthClientModel } from '@core/auth/oauth2';
 
 export class AuthLoader implements ILoader {
 
+  /**
+   * Initializes client models and
+   * dependency injection of auth server
+   *
+   * @returns {Promise<void>}
+   */
   public async load(): Promise<void> {
     try {
 
