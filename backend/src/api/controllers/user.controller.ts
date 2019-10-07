@@ -4,7 +4,7 @@ import { Request, Response, Router, NextFunction } from 'express';
 import { IUser, UserModel } from '@app/models';
 import { ICrudRouteOptions } from '@core/types';
 import { AuthenticatedMiddleware } from '@core/middlewares';
-import { ResourceController } from '@core/resource-controller';
+import { ResourceController } from '@core/utils/resource-controller';
 
 /**
  * User Controller

@@ -1,5 +1,4 @@
-import { Request, Response, RequestHandler, Router, NextFunction } from 'express';
-import { IApiController } from './api-controller.interface';
+import { Request, Response, RequestHandler, NextFunction } from 'express';
 
 /**
  * CRUD operation definition
@@ -32,7 +31,7 @@ export interface ICrudRouteOptions {
  * @export
  * @interface ICrudController
  */
-export interface ICrudController extends IApiController {
+export interface ICrudController {
   index(): (req: Request, res: Response, next?: NextFunction) => Promise<Response>;
   create(): (req: Request, res: Response, next?: NextFunction) => Promise<Response>;
   show(id?: string): (req: Request, res: Response, next?: NextFunction) => Promise<Response>;

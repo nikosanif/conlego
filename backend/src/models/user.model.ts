@@ -1,6 +1,6 @@
 import crypto from 'crypto';
 import { pre, prop } from '@typegoose/typegoose';
-import { ModelFactory } from '@core/model-factory';
+import { ModelFactory } from '@core/utils/model-factory';
 import { IResourceModel, ModelDocumentType } from '@core/types';
 
 

@@ -1,11 +1,11 @@
 import { NotFound } from 'http-errors';
+import { QueryOptions } from 'mongoose-query-parser';
 import { OK, CREATED, NO_CONTENT } from 'http-status-codes';
 import { Request, Response, Router, NextFunction } from 'express';
-import { MongooseQueryParser, QueryOptions } from 'mongoose-query-parser';
-import { Model, Document, PaginateOptions, PaginateModel, PaginateResult, ResourceModel } from 'mongoose';
-import { ICrudController, ICrudRouteOptions } from '@core/types';
+import { Model, Document, PaginateModel, PaginateResult, ResourceModel } from 'mongoose';
+import { ICrudController, ICrudRouteOptions, IApiController } from '@core/types';
 
-export class ResourceController<T extends Document> implements ICrudController {
+export class ResourceController<T extends Document> implements ICrudController, IApiController  {
 
   protected modelSchema: Model<T>;
 
