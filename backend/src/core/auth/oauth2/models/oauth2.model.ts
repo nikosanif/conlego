@@ -82,9 +82,13 @@ export class Oauth2Model
       const decodedToken = jwt
         .verify(accessToken, config.oauth2.secrets.accessToken) as { userId: string, clientId: string };
 
-      return await OAuthTokenModel
+      const result = await OAuthTokenModel
         .findOne({ accessToken, user: decodedToken.userId, client: decodedToken.clientId })
         .populate('user client');
+
+      if (!result.user) { throw new Error(); }
+
+      return result;
 
     } catch (e) {
       return false;
@@ -104,9 +108,13 @@ export class Oauth2Model
       const decodedToken = jwt
         .verify(refreshToken, config.oauth2.secrets.refreshToken) as { userId: string, clientId: string };
 
-      return await OAuthTokenModel
+      const result = await OAuthTokenModel
         .findOne({ refreshToken, user: decodedToken.userId, client: decodedToken.clientId })
         .populate('user client');
+
+      if (!result.user) { throw new Error(); }
+
+      return result;
 
     } catch (e) {
       return false;
