@@ -3,14 +3,14 @@ import { QueryOptions } from 'mongoose-query-parser';
 import { OK, CREATED, NO_CONTENT } from 'http-status-codes';
 import { Request, Response, Router, NextFunction } from 'express';
 import { Model, Document, PaginateModel, PaginateResult, ResourceModel } from 'mongoose';
+import { ResourceProvider } from '@core/utils/resource-provider';
 import { ICrudController, ICrudRouteOptions, IApiController } from '@core/types';
 
-export class ResourceController<T extends Document> implements ICrudController, IApiController  {
+export class ResourceController<T extends Document>
+  extends ResourceProvider<T> implements ICrudController, IApiController {
 
-  protected modelSchema: Model<T>;
-
-  constructor(modelSchema: Model<T>) {
-    this.modelSchema = modelSchema;
+  constructor(model: Model<T>) {
+    super(model);
   }
 
   /**
@@ -73,24 +73,10 @@ export class ResourceController<T extends Document> implements ICrudController, 
   public index() {
     return async (req: Request, res: Response, next?: NextFunction): Promise<Response> => {
       try {
-        const queryOptions = req.paginationOptions;
-        let resources: PaginateResult<T> | T[];
-
-        if ((this.modelSchema as PaginateModel<T>).paginate) {
-          // get paginated resources if available plugin
-          resources = await (this.modelSchema as PaginateModel<T>)
-            .paginate(queryOptions.query, queryOptions.options);
-
-        } else {
-          // else get resources as list
-          resources = await this.modelSchema
-            .find(queryOptions.query)
-            .select(queryOptions.options.select)
-            .populate(queryOptions.options.populate)
-            .sort(queryOptions.options.sort)
-            .exec();
-
-        }
+        // get list of resources
+        const resources: PaginateResult<T> | T[] = await this
+          .resourceProvider
+          .find(req.mongooseQueryOptions, true);
 
         return res
           .status(OK)
@@ -103,7 +89,7 @@ export class ResourceController<T extends Document> implements ICrudController, 
   }
 
   /**
-   * Create a new resource model
+   * Create a new resource instance
    */
   public create(blacklist: string[] = []) {
     return async (req: Request, res: Response, next?: NextFunction): Promise<Response> => {
@@ -115,8 +101,9 @@ export class ResourceController<T extends Document> implements ICrudController, 
         }
 
         // create new resource
-        const resource = await new this.modelSchema(req.body)
-          .save();
+        const resource = await this
+          .resourceProvider
+          .create(req.body);
 
         return res
           .status(CREATED)
@@ -129,7 +116,7 @@ export class ResourceController<T extends Document> implements ICrudController, 
   }
 
   /**
-   * Get one resource model by Id
+   * Get one resource instance by Id
    *
    * @param {string} [id] Model id to be retrieved
    * @returns
@@ -138,14 +125,14 @@ export class ResourceController<T extends Document> implements ICrudController, 
     return async (req: Request, res: Response, next?: NextFunction): Promise<Response> => {
       try {
         const modelId = id || req.params.id;
-        const queryOptions = req.mongooseQueryOptions as QueryOptions;
 
-        const resource = await this.modelSchema
-          .findOne({ _id: modelId })
-          .select(queryOptions.select)
-          .populate(queryOptions.populate)
-          .orFail(new NotFound())
-          .exec();
+        // find resource
+        const resource = await this
+          .resourceProvider
+          .findById(modelId, req.mongooseQueryOptions);
+
+        // throw error if not found
+        if (!resource) { throw new NotFound(); }
 
         return res
           .status(OK)
@@ -158,7 +145,7 @@ export class ResourceController<T extends Document> implements ICrudController, 
   }
 
   /**
-   * Update one resource model by Id
+   * Update one resource instance by Id
    *
    * @param {string} [id] Model id to be modified
    * @param {string[]} [blacklist=[]] List of properties to ignore
@@ -170,8 +157,8 @@ export class ResourceController<T extends Document> implements ICrudController, 
         const modelId = id || req.params.id;
 
         // get read only properties if available in order to ignore them
-        const readonlyPropsOfModel: string[] = (this.modelSchema as ResourceModel<T>).getReadonlyProperties
-          ? (this.modelSchema as ResourceModel<T>).getReadonlyProperties()
+        const readonlyPropsOfModel: string[] = (this.model as ResourceModel<T>).getReadonlyProperties
+          ? (this.model as ResourceModel<T>).getReadonlyProperties()
           : [];
 
         // delete blacklisted properties from body
@@ -180,14 +167,13 @@ export class ResourceController<T extends Document> implements ICrudController, 
           delete req.body[key];
         }
 
-        const resource = await this.modelSchema
-          .findOneAndUpdate(
-            { _id: modelId },
-            req.body,
-            { new: true, runValidators: true, context: 'query' }
-          )
-          .orFail(new NotFound())
-          .exec();
+        // update resource
+        const resource = await this
+          .resourceProvider
+          .update(modelId, req.body);
+
+        // throw error if not found
+        if (!resource) { throw new NotFound(); }
 
         return res
           .status(OK)
@@ -200,7 +186,7 @@ export class ResourceController<T extends Document> implements ICrudController, 
   }
 
   /**
-   * Delete one resource model by Id
+   * Delete one resource instance by Id
    *
    * @param {string} [id] Model id to be deleted
    */
@@ -209,10 +195,12 @@ export class ResourceController<T extends Document> implements ICrudController, 
       try {
         const modelId = id || req.params.id;
 
-        await this.modelSchema
-          .findOneAndDelete({ _id: modelId })
-          .orFail(new NotFound())
-          .exec();
+        const resource = await this
+          .resourceProvider
+          .delete(modelId);
+
+        // throw error if not found
+        if (!resource) { throw new NotFound(); }
 
         return res
           .sendStatus(NO_CONTENT);

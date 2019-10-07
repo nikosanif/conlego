@@ -60,7 +60,7 @@ export class UserController extends ResourceController<IUser> {
         const oldPassword: string = req.body.oldPassword;
         const newPassword: string = req.body.newPassword;
 
-        const user = await this.modelSchema
+        const user = await this.model
           .findById(req.user._id)
           .select('+password +salt')
           .orFail(new NotFound())
