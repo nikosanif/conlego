@@ -25,7 +25,10 @@ FROM nginx:1.17.0-alpine
 LABEL maintainer="Nikos Anifantis"
 
 ## Copy our default nginx config
-COPY nginx/default.conf /etc/nginx/conf.d/
+COPY nginx/conf.d/default.conf /etc/nginx/conf.d/
+
+## Copy our nginx config
+COPY nginx/nginx.conf /etc/nginx/nginx.conf
 
 ## Remove default nginx website
 RUN rm -rf /usr/share/nginx/html/*
