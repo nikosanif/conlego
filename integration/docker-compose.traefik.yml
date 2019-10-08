@@ -9,3 +9,58 @@
 version: "3.7"
 
 services: 
+  backend:
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.backend.middlewares=compress@docker
+      - traefik.http.routers.backend.rule=PathPrefix(`/api/,/socket.io-client/`)
+      - traefik.http.routers.backend.entrypoints=web
+      # Sticky Session
+      - traefik.http.services.backend.loadbalancer.sticky=true
+      - traefik.http.services.backend.loadbalancer.sticky.cookie.secure=false
+      - traefik.http.services.backend.loadbalancer.sticky.cookie.httponly=true
+  
+  frontend:
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.frontend.rule=PathPrefix(`/`)
+      - traefik.http.routers.frontend.middlewares=compress@docker
+      - traefik.http.routers.frontend.entrypoints=web
+
+  traefik:
+    command:
+      # Providers
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+      # EntryPoints
+      - --entryPoints.web.address=:80
+      - --entryPoints.web-secure.address=:443
+      - --entryPoints.dashboard.address=:8989
+      - --entryPoints.metrics.address=:8084
+      # Logging
+      # - --accesslog=false
+      # - --log
+      # - --log.level=DEBUG
+      # - --log.filePath=log/traefik.log
+      # - --log.format=json
+      # Internal api
+      - --api
+      - --api.dashboard=true
+      # Metrics
+      # - --metrics
+      # - --metrics.prometheus=true
+      # - --metrics.prometheus.buckets=0.100000, 0.300000, 1.200000, 5.000000
+      # - --metrics.prometheus.entrypoint=metrics
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.api.rule=PathPrefix(`/`)
+      - traefik.http.routers.api.entrypoints=dashboard
+      - traefik.http.routers.api.service=api@internal
+      - traefik.http.routers.api.middlewares=basicauth
+      - traefik.http.middlewares.basicauth.basicauth.users=test:$$apr1$$H6uskkkW$$IgXLP6ewTrSuBkTrqE8wj/
+      - traefik.http.middlewares.compress.compress=true # crate custom middleware with name
+    ports:
+      - 80:80 # http
+      # - 443:443 # https
+      # - 8909:8989 # dashboard
+      # - 8084:8084 # metrics
