@@ -28,7 +28,24 @@ services:
       - traefik.http.routers.frontend.entrypoints=web
 
   traefik:
+    image: traefik:2.0.1
+    container_name: ${APP_NAME}-traefik-proxy
+    restart: unless-stopped
+    depends_on:
+      - backend
+      - frontend
+    networks:
+      - integration-network
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro # So that Traefik can listen to the Docker events
+      - SSL:/etc/traefik/acme
+      - ./dist/traefik-logs:/log
     command:
+      # SSL
+      # --certificatesResolvers.sample.acme.email="your-email@your-domain.org"
+      # --certificatesResolvers.sample.acme.storage="etc/traefik/acme/acme.json"
+      # # used during the challenge
+      # --certificatesResolvers.sample.acme.httpChallenge.entryPoint=web
       # Providers
       - --providers.docker=true
       - --providers.docker.exposedbydefault=false
