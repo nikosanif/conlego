@@ -1,7 +1,9 @@
 import express from 'express';
 import { HttpError, Forbidden, BadRequest } from 'http-errors';
 import oauth2Server, { UnauthorizedRequestError } from 'oauth2-server';
+import { IUser } from '@app/models';
 import { Oauth2Model } from './models/oauth2.model';
+
 
 const Request = oauth2Server.Request;
 const Response = oauth2Server.Response;
@@ -76,15 +78,19 @@ export class OAuth2Server {
    * Indicates whether the given token is valid or not
    *
    * @param {string} accessToken
+   * @returns {Promise<IUser>}
    */
-  public async validateAccessToken(accessToken: string): Promise<boolean> {
+  public async getUserFromAccessToken(accessToken: string): Promise<IUser> {
+    // check if token exists
     const token = await this.oauth2Model.getAccessToken(accessToken);
-    if (!token) { return false; }
+    if (!token) { return null; }
 
     // check if token has expired
     const expiresAt = new Date(token.accessTokenExpiresAt);
     const now = new Date();
-    return expiresAt > now;
+    if (expiresAt < now) { return null; }
+
+    return token.user;
   }
 
   /**

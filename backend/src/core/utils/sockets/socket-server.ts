@@ -3,7 +3,7 @@ import io from 'socket.io';
 import RedisAdapter from 'socket.io-redis';
 import { logger } from '@core/utils/logger';
 import { config, getHostDomain } from '@config';
-import { ValidateAccessTokenMiddleware } from '@core/middlewares';
+import { SocketIOAuthMiddleware } from '@core/middlewares';
 
 
 export class SocketServer {
@@ -39,8 +39,8 @@ export class SocketServer {
           logger.error('Socket server failed due to: ', e);
         });
 
-      // add middleware with access token
-      this.io.use(this.socketAuthMiddleware);
+      // add authentication middleware
+      this.io.use(SocketIOAuthMiddleware);
 
       // register events on connect
       this.onConnect();
@@ -55,36 +55,12 @@ export class SocketServer {
   //#region Private methods
 
   /**
-   * Implements authentication middleware that
-   * checks validity of the given access token
-   *
-   * @private
-   * @param {io.Socket} socket
-   * @param {(err?: any) => void} next
-   * @returns
-   */
-  private async socketAuthMiddleware(socket: io.Socket, next: (err?: any) => void) {
-    try {
-      const isValid = await ValidateAccessTokenMiddleware(socket.handshake.query.token);
-
-      // check validity of token
-      if (!isValid) {
-        return next(new Error('Authentication error'));
-      }
-
-      next();
-
-    } catch (e) {
-      next(e);
-    }
-  }
-
-  /**
    * On server connection.
    */
   private onConnect() {
     this.io.on('connection', socket => {
-      logger.debug('[sockets] connection');
+      logger.debug(`[sockets] connection`);
+      logger.debug(`[sockets] Welcome, ${socket.user.firstName} ${socket.user.lastName}!`);
 
       this.onSubscribe(socket);
       this.onUnsubscribe(socket);
