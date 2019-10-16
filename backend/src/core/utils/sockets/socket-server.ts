@@ -3,6 +3,7 @@ import io from 'socket.io';
 import RedisAdapter from 'socket.io-redis';
 import { logger } from '@core/utils/logger';
 import { config, getHostDomain } from '@config';
+import { ValidateAccessTokenMiddleware } from '@core/middlewares';
 
 
 export class SocketServer {
@@ -38,6 +39,9 @@ export class SocketServer {
           logger.error('Socket server failed due to: ', e);
         });
 
+      // add middleware with access token
+      this.io.use(this.socketAuthMiddleware);
+
       // register events on connect
       this.onConnect();
 
@@ -51,11 +55,36 @@ export class SocketServer {
   //#region Private methods
 
   /**
+   * Implements authentication middleware that
+   * checks validity of the given access token
+   *
+   * @private
+   * @param {io.Socket} socket
+   * @param {(err?: any) => void} next
+   * @returns
+   */
+  private async socketAuthMiddleware(socket: io.Socket, next: (err?: any) => void) {
+    try {
+      const isValid = await ValidateAccessTokenMiddleware(socket.handshake.query.token);
+
+      // check validity of token
+      if (!isValid) {
+        return next(new Error('Authentication error'));
+      }
+
+      next();
+
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  /**
    * On server connection.
    */
   private onConnect() {
     this.io.on('connection', socket => {
-      logger.debug('connection');
+      logger.debug('[sockets] connection');
 
       this.onSubscribe(socket);
       this.onUnsubscribe(socket);
@@ -71,7 +100,7 @@ export class SocketServer {
    */
   private onSubscribe(socket: io.Socket): void {
     socket.on('subscribe', (data: any) => {
-      logger.debug('subscribe');
+      logger.debug('[sockets] subscribe');
     });
   }
 
@@ -82,7 +111,7 @@ export class SocketServer {
    */
   private onUnsubscribe(socket: io.Socket): void {
     socket.on('unsubscribe', (data: any) => {
-      logger.debug('unsubscribe');
+      logger.debug('[sockets] unsubscribe');
     });
   }
 
@@ -93,7 +122,7 @@ export class SocketServer {
    */
   private onDisconnecting(socket: io.Socket): void {
     socket.on('disconnecting', (reason: any) => {
-      logger.debug('disconnecting');
+      logger.debug('[sockets] disconnecting');
     });
   }
 
@@ -104,7 +133,7 @@ export class SocketServer {
    */
   private onClientEvent(socket: io.Socket): void {
     socket.on('client:event', (data: any) => {
-      logger.debug('client event');
+      logger.debug('[sockets] client event');
     });
   }
 
