@@ -39,7 +39,7 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro # So that Traefik can listen to the Docker events
       - SSL:/etc/traefik/acme
-      - ./dist/traefik-logs:/log
+      - ./logs/traefik:/log
     command:
       # SSL
       # --certificatesResolvers.sample.acme.email="your-email@your-domain.org"
