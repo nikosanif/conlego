@@ -1,6 +1,6 @@
 # -------------- STAGE 1: Build --------------
 
-FROM node:10.16.0-alpine
+FROM node:12.13.0-alpine
 LABEL maintainer="Nikos Anifantis"
 
 # set working directory
