@@ -46,7 +46,7 @@
     "@types/jsonwebtoken": "^8.3.5",
     "@types/lodash": "^4.14.144",
     "@types/method-override": "0.0.31",
-    "@types/mongoose": "^5.5.22",
+    "@types/mongoose": "^5.5.23",
     "@types/mongoose-paginate-v2": "^1.0.5",
     "@types/mongoose-unique-validator": "^1.0.3",
     "@types/morgan": "^1.7.37",
