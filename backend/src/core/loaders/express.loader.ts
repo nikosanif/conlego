@@ -4,7 +4,7 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import methodOverride from 'method-override';
 import { MethodNotAllowed } from 'http-errors';
-import { apiRouter } from '@app/api';
+import { Api } from '@app/api';
 import { ILoader } from '@core/types';
 import { logger } from '@core/utils/logger';
 import { GlobalErrorHandlerMiddleware, MongooseQueryParserMiddleware } from '@core/middlewares';
@@ -32,7 +32,7 @@ export class ExpressLoader implements ILoader {
         .use(MongooseQueryParserMiddleware());
 
       // setup primary app routes.
-      application.use(apiRouter);
+      application.use(new Api().applyRoutes());
 
       // all other routes should return 405 error (Method Not Allowed)
       application
