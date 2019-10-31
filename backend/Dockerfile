@@ -12,6 +12,9 @@ ENV PATH /backend/node_modules/.bin:$PATH
 COPY package.json /backend/package.json
 RUN npm install
 
+# We install the migrate project in ordet to handle migrations and insertions
+RUN npm install -g migrate-mongoose
+
 # add backend source
 COPY . /backend
 
