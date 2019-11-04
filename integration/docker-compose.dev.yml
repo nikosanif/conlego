@@ -29,6 +29,9 @@ services:
     ports:
       # Expose frontend port at host machine
       - ${DEV_FRONTEND_PORT}:4200
+      # Webpack uses a port to do live reload of the application.
+      # That port is 49153 by default.
+      - 49153:49153
     volumes:
       # Sync source code
       - ../frontend/src/:/frontend/src

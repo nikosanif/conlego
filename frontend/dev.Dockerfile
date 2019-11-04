@@ -19,4 +19,4 @@ COPY . /frontend
 
 # -------------- STAGE 2: Run --------------
 
-CMD ng serve --host 0.0.0.0
+CMD ng serve --host 0.0.0.0 --poll 1000
