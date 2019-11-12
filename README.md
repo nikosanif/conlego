@@ -31,6 +31,8 @@ A MEAN fullstack integrated with docker.
   - [x] Mongodb adapter
   - [ ] Redis adapter
 
+- [x] Migrations
+
 - [ ] Resource Controller
   - [x] Generic resource controller for exposing CRUD API
     - [x] Optional CRUD operation
@@ -65,3 +67,7 @@ A MEAN fullstack integrated with docker.
   - [ ] Implement a sophisticated way to manage notifications
   - [ ] Send notification to user/user groups
   - [ ] Find an efficient way to manage them from client
+
+
+## Migrate Example
+npx migrate list, create <migration-name>, up [migration-name], down <migration-name>,  prune
