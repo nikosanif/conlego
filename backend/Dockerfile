@@ -9,7 +9,7 @@ WORKDIR /backend
 ENV PATH /backend/node_modules/.bin:$PATH
 
 # install and cache backend dependencies
-COPY package*.json .
+COPY package.json package-lock.json /backend/
 RUN npm install
 
 # add backend source
