@@ -31,7 +31,6 @@ class MongooseValidator {
      * @memberof FieldValidator
      */
     public async isEntityUnique(model: string, value: string, field = '_id'): Promise <boolean> {
-        const result = await this.isEntityExists(model, value, field);
         return !await this.isEntityExists(model, value, field);
     }
 
