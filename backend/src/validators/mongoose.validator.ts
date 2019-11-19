@@ -18,7 +18,7 @@ class MongooseValidator {
     public async isEntityExists(model: string, value: string, field = '_id'): Promise<boolean> {
         const filter: any = {};
         filter[field] = value;
-        return !!await mongoose.connection.db.collection(model).findOne(filter);
+        return !!await mongoose.model(model).findOne(filter);
     }
 
     /**
