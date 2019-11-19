@@ -1,5 +1,5 @@
 import { Model, model, Schema, SchemaOptions } from 'mongoose';
-import { buildSchema } from '@typegoose/typegoose';
+import { buildSchema, addModelToTypegoose } from '@typegoose/typegoose';
 import mongoosePaginate from 'mongoose-paginate-v2';
 import mongooseUniqueValidator from 'mongoose-unique-validator';
 import { defaultSchemaOptions } from './schema-options';
@@ -39,8 +39,11 @@ export class ModelFactory<T> {
 
     const collectionName = this.instance.constructor.name;
     const schema = this.instanceSchema || this.getSchema();
-    this.instanceModel = model<ModelDocumentType<T>>(collectionName, schema, collectionName);
-
+    // this.instanceModel = model<ModelDocumentType<T>>(collectionName, schema, collectionName);
+    this.instanceModel = addModelToTypegoose(
+      model<ModelDocumentType<T>>(collectionName, schema, collectionName),
+      this.tConstructor
+    );
     return this.instanceModel;
   }
 

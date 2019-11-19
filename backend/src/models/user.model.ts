@@ -1,25 +1,28 @@
 import crypto from 'crypto';
-import { pre, prop } from '@typegoose/typegoose';
+import { pre, prop, Ref, index } from '@typegoose/typegoose';
 import { ModelFactory } from '@core/utils/model-factory';
 import { IResourceModel, ModelDocumentType } from '@core/types';
 
-
+// ------------------  HOOKS ---------------
 @pre<User>('save', handlePasswordChangeHook)
-class User implements IResourceModel {
+// ------------------  INDEXES -------------
+@index({ email: 1 }, { unique: true })
+@index({ email: 1, password: -1 })
+// -----------------------------------------
+export class User implements IResourceModel {
 
   public hidden: string[] = ['password', 'salt'];
   public readonly: string[] = ['password', 'salt'];
-
   // ------------------------------------------
   // #region Instance properties
 
-  @prop({ required: true })
+  @prop({ required: true, trim: true,  })
   public firstName: string;
 
-  @prop({ required: true })
+  @prop({ required: true, trim: true })
   public lastName: string;
 
-  @prop({ required: true, unique: true, })
+  @prop({ required: true, lowercase: true, trim: true, unique: true })
   public email: string;
 
   @prop({ required: true })
@@ -27,9 +30,6 @@ class User implements IResourceModel {
 
   @prop()
   public salt?: string;
-
-  @prop()
-  public role?: string;
 
   // #endregion Instance properties
   // ------------------------------------------
@@ -105,6 +105,6 @@ async function handlePasswordChangeHook(next: (...args: any[]) => void) {
   this.password = this.encryptPassword(this.password);
 }
 
-
 export interface IUser extends ModelDocumentType<User> { }
 export const UserModel = new ModelFactory<User>(User).getModel();
+export const UserSchema = new ModelFactory<User>(User).getSchema();

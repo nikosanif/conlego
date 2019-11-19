@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import { Request, Response, NextFunction, ErrorRequestHandler } from 'express';
-import { INTERNAL_SERVER_ERROR, UNPROCESSABLE_ENTITY } from 'http-status-codes';
+import { getStatusText, getStatusCode, INTERNAL_SERVER_ERROR, UNPROCESSABLE_ENTITY } from 'http-status-codes';
 
 /**
  * Middleware for handling global errors in express
@@ -23,5 +23,25 @@ export function GlobalErrorHandlerMiddleware(): ErrorRequestHandler {
     }
 
     res.status(status).json({ status, code, message, errors });
+  };
+}
+
+
+/**
+ *
+ * Get the Error object that describes the error tha occured
+ * @export
+ * @param {number} httpStatus
+ * @param {*} [body={}]
+ * @returns
+ */
+export function getErrorBody(httpStatus: number, body = {}): any {
+  const rstatus = getStatusText(httpStatus);
+  const rcode = getStatusCode(rstatus);
+  return {
+    status: httpStatus,
+    code: rcode,
+    message: rstatus,
+    errors: body
   };
 }
