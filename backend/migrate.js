@@ -1,3 +1,10 @@
+// discover dynamic path mappings
+require('module-alias/register');
+
+// register all models before running anything
+require('@app/models');
+
+// migrate-mongoose config
 var migrateConfig = {
   migrationsDir: 'src/database/migrations',
   dbConnectionUri: `mongodb://`
