@@ -1,8 +1,7 @@
 import { NotFound } from 'http-errors';
-import { QueryOptions } from 'mongoose-query-parser';
 import { OK, CREATED, NO_CONTENT } from 'http-status-codes';
 import { Request, Response, Router, NextFunction } from 'express';
-import { Model, Document, PaginateModel, PaginateResult, ResourceModel } from 'mongoose';
+import { Model, Document, PaginateResult, ResourceModel } from 'mongoose';
 import { ResourceProvider } from '@core/utils/resource-provider';
 import { ICrudController, ICrudRouteOptions, IApiController } from '@core/types';
 
@@ -94,11 +93,14 @@ export class ResourceController<T extends Document>
   public create(blacklist: string[] = []) {
     return async (req: Request, res: Response, next?: NextFunction): Promise<Response> => {
       try {
+        // get read only properties if available in order to ignore them
+        const readonlyPropsOfModel: string[] = (this.model as ResourceModel<T>).getReadonlyProperties
+          ? (this.model as ResourceModel<T>).getReadonlyProperties()
+          : [];
+
         // delete blacklisted properties from body
-        const defaultBlacklist = ['_id', 'createdAt', 'updatedAt', ...blacklist];
-        for (const key of defaultBlacklist) {
-          delete req.body[key];
-        }
+        const blacklistProps = [...readonlyPropsOfModel, ...blacklist];
+        for (const key of blacklistProps) { delete req.body[key]; }
 
         // create new resource
         const resource = await this
@@ -162,10 +164,8 @@ export class ResourceController<T extends Document>
           : [];
 
         // delete blacklisted properties from body
-        const defaultBlacklist = ['_id', 'createdAt', 'updatedAt', ...readonlyPropsOfModel, ...blacklist];
-        for (const key of defaultBlacklist) {
-          delete req.body[key];
-        }
+        const blacklistProps = [...readonlyPropsOfModel, ...blacklist];
+        for (const key of blacklistProps) { delete req.body[key]; }
 
         // update resource
         const resource = await this

@@ -1,6 +1,10 @@
 import * as mongoose from 'mongoose';
+import { SoftDeleteDocument, SoftDeleteModel } from 'mongoose-delete';
 
-export declare type ModelDocumentType<T> = T & mongoose.Document;
+export declare type ModelDocumentType<T> =
+  T
+  & mongoose.Document
+  & SoftDeleteDocument;
 
 export interface IResourceModel {
 
@@ -20,3 +24,8 @@ export interface IResourceModel {
   readonly: string[];
 
 }
+
+export declare type ResourceModel<T> =
+  mongoose.Model<ModelDocumentType<T>>
+  & mongoose.PaginateModel<ModelDocumentType<T>>
+  & SoftDeleteModel<ModelDocumentType<T>>;
