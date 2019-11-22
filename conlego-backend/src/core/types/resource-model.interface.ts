@@ -28,4 +28,8 @@ export interface IResourceModel {
 export declare type ResourceModel<T> =
   mongoose.Model<ModelDocumentType<T>>
   & mongoose.PaginateModel<ModelDocumentType<T>>
-  & SoftDeleteModel<ModelDocumentType<T>>;
+  & SoftDeleteModel<ModelDocumentType<T>>
+  & {
+    getReadonlyProperties(): string[];
+    getHiddenProperties(): string[];
+  };

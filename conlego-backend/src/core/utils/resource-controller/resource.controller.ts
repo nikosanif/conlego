@@ -1,14 +1,14 @@
 import { NotFound } from 'http-errors';
 import { OK, CREATED, NO_CONTENT } from 'http-status-codes';
 import { Request, Response, Router, NextFunction } from 'express';
-import { Model, Document, PaginateResult, ResourceModel } from 'mongoose';
+import { Document, PaginateResult } from 'mongoose';
 import { ResourceProvider } from '@core/utils/resource-provider';
-import { ICrudController, ICrudRouteOptions, IApiController } from '@core/types';
+import { ICrudController, ICrudRouteOptions, IApiController, ResourceModel } from '@core/types';
 
 export class ResourceController<T extends Document>
   extends ResourceProvider<T> implements ICrudController, IApiController {
 
-  constructor(model: Model<T>) {
+  constructor(model: ResourceModel<T>) {
     super(model);
   }
 
@@ -93,13 +93,8 @@ export class ResourceController<T extends Document>
   public create(blacklist: string[] = []) {
     return async (req: Request, res: Response, next?: NextFunction): Promise<Response> => {
       try {
-        // get read only properties if available in order to ignore them
-        const readonlyPropsOfModel: string[] = (this.model as ResourceModel<T>).getReadonlyProperties
-          ? (this.model as ResourceModel<T>).getReadonlyProperties()
-          : [];
-
         // delete blacklisted properties from body
-        const blacklistProps = [...readonlyPropsOfModel, ...blacklist];
+        const blacklistProps = ['_id', 'createdAt', 'updatedAt', 'deleted', 'deletedAt', ...blacklist];
         for (const key of blacklistProps) { delete req.body[key]; }
 
         // create new resource
@@ -159,8 +154,8 @@ export class ResourceController<T extends Document>
         const modelId = id || req.params.id;
 
         // get read only properties if available in order to ignore them
-        const readonlyPropsOfModel: string[] = (this.model as ResourceModel<T>).getReadonlyProperties
-          ? (this.model as ResourceModel<T>).getReadonlyProperties()
+        const readonlyPropsOfModel: string[] = this.model.getReadonlyProperties
+          ? this.model.getReadonlyProperties()
           : [];
 
         // delete blacklisted properties from body

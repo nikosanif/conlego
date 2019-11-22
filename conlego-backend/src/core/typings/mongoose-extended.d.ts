@@ -5,10 +5,4 @@ declare module 'mongoose' {
     createdAt?: Date;
     updatedAt?: Date;
   }
-
-  interface ResourceModel<T extends Document> extends Model<T> {
-    getReadonlyProperties(): string[];
-    getHiddenProperties(): string[];
-  }
-
 }

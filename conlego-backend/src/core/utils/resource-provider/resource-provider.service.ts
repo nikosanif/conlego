@@ -1,12 +1,13 @@
 import { QueryOptions } from 'mongoose-query-parser';
-import { Document, Model, PaginateModel, PaginateResult } from 'mongoose';
+import { Document, PaginateModel, PaginateResult } from 'mongoose';
+import { ResourceModel } from '@core/types';
 
 
 export class ResourceProviderService<T extends Document> {
 
-  private model: Model<T>;
+  private model: ResourceModel<T>;
 
-  constructor(model: Model<T>) {
+  constructor(model: ResourceModel<T>) {
     this.model = model;
   }
 
@@ -76,7 +77,7 @@ export class ResourceProviderService<T extends Document> {
     queryOptions = queryOptions || ({} as any);
 
     return this.model
-      .findById(id)
+      .findOne({ _id: id })
       .select(queryOptions.select)
       .populate(queryOptions.populate)
       .exec();
@@ -91,7 +92,11 @@ export class ResourceProviderService<T extends Document> {
    */
   public async update(id: string, resource: T): Promise<T> {
     return this.model
-      .findByIdAndUpdate(id, resource, { new: true, runValidators: true, context: 'query' })
+      .findOneAndUpdate(
+        { _id: id },
+        resource,
+        { new: true, runValidators: true, context: 'query' }
+      )
       .exec();
   }
 
@@ -103,7 +108,7 @@ export class ResourceProviderService<T extends Document> {
    */
   public async delete(id: string): Promise<T> {
     return this.model
-      .findByIdAndDelete(id)
+      .deleteById(id)
       .exec();
   }
 
