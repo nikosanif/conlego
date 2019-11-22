@@ -1,9 +1,10 @@
-import { Model, model, Schema, SchemaOptions } from 'mongoose';
+import mongooseSoftDelete from 'mongoose-delete';
 import { buildSchema } from '@typegoose/typegoose';
 import mongoosePaginate from 'mongoose-paginate-v2';
+import { model, Schema, SchemaOptions } from 'mongoose';
 import mongooseUniqueValidator from 'mongoose-unique-validator';
 import { defaultSchemaOptions } from './schema-options';
-import { IResourceModel, ModelDocumentType } from '@core/types';
+import { IResourceModel, ModelDocumentType, ResourceModel } from '@core/types';
 
 
 export class ModelFactory<T> {
@@ -12,7 +13,7 @@ export class ModelFactory<T> {
   private instanceSchema: Schema<T>;
   private instance: T & IResourceModel;
   private schemaOptions: SchemaOptions;
-  private instanceModel: Model<ModelDocumentType<T>>;
+  private instanceModel: ResourceModel<T>;
   private tConstructor: new () => T & IResourceModel;
 
   /**
@@ -34,13 +35,13 @@ export class ModelFactory<T> {
   /**
    * Generate a mongoose model based on instance class
    *
-   * @returns {Model<ModelDocumentType<T>, {}>}
+   * @returns {ResourceModel<T>}
    */
-  public getModel(): Model<ModelDocumentType<T>, {}> {
+  public getModel(): ResourceModel<T> {
     if (this.instanceModel) { return this.instanceModel; }
 
     const schema = this.instanceSchema || this.getSchema();
-    this.instanceModel = model<ModelDocumentType<T>>(this.collectionName, schema, this.collectionName);
+    this.instanceModel = model<ModelDocumentType<T>>(this.collectionName, schema, this.collectionName) as any;
 
     return this.instanceModel;
   }
@@ -65,7 +66,8 @@ export class ModelFactory<T> {
     );
 
     // Add static method returning readonly properties
-    this.instanceSchema.static('getReadonlyProperties', () => this.instance.readonly || []);
+    const readonlyBlacklist = ['_id', 'createdAt', 'updatedAt', 'deleted', 'deletedAt'];
+    this.instanceSchema.static('getReadonlyProperties', () => [...readonlyBlacklist, ...this.instance.readonly]);
 
     // Add static method returning hidden properties
     this.instanceSchema.static('getHiddenProperties', () => this.instance.hidden || []);
@@ -83,9 +85,17 @@ export class ModelFactory<T> {
       }
     });
 
-    // add global plugins
+    // add plugin for pagination
     this.instanceSchema.plugin(mongoosePaginate);
+    // add plugin for unique validator
     this.instanceSchema.plugin(mongooseUniqueValidator);
+    // add plugin for soft delete
+    this.instanceSchema.plugin(mongooseSoftDelete, {
+      deletedAt: true,                // add timestamp on delete
+      indexFields: false,             // do not create indexes
+      validateBeforeDelete: true,     // validate model before deletion
+      overrideMethods: ['count', 'countDocuments', 'find', 'findOne', 'findOneAndUpdate', 'update']
+    });
 
     return this.instanceSchema;
   }

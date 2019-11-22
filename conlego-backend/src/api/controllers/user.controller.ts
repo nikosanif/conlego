@@ -61,7 +61,7 @@ export class UserController extends ResourceController<IUser> {
         const newPassword: string = req.body.newPassword;
 
         const user = await this.model
-          .findById(req.user._id)
+          .findOne({ _id: req.user._id })
           .select('+password +salt')
           .orFail(new NotFound())
           .exec();
