@@ -3,7 +3,7 @@ version: "3.7"
 services:
   backend:
     image: ${APP_NAME}-backend:${APP_VERSION}
-    build: ../backend
+    build: ../conlego-backend
     container_name: ${APP_NAME}-backend
     restart: always
     depends_on:
@@ -26,7 +26,7 @@ services:
   frontend:
     image: ${APP_NAME}-frontend:${APP_VERSION}
     build:
-      context: ../frontend
+      context: ../conlego-frontend
     container_name: ${APP_NAME}-frontend
     restart: always
     networks:
