@@ -1,8 +1,9 @@
 import express from 'express';
 import { HttpError, Forbidden, BadRequest } from 'http-errors';
-import oauth2Server, { UnauthorizedRequestError } from 'oauth2-server';
+import oauth2Server, { UnauthorizedRequestError, Falsey } from 'oauth2-server';
 import { IUser } from '@app/models';
 import { Oauth2Model } from './models/oauth2.model';
+import { IOAuthToken } from './models/oauth-token.model';
 
 
 const Request = oauth2Server.Request;
@@ -147,6 +148,49 @@ export class OAuth2Server {
         return this.handleError(e, req, res, response, next);
       }
     };
+  }
+
+  /**
+   * Retrieves a new token giving as input
+   * the client credentials and a user entity.
+   *
+   * @param {string} clientId
+   * @param {string} clientSecret
+   * @param {IUser} user
+   * @param {string[]} [scope=[]]
+   * @returns {(Promise<IOAuthToken | Falsey>)}
+   */
+  public async retrieveCustomToken(
+    clientId: string,
+    clientSecret: string,
+    user: IUser,
+    scope: string[] = []
+  ): Promise<IOAuthToken | Falsey> {
+    // find client
+    const client = await this.oauth2Model.getClient(clientId, clientSecret);
+    if (!client) { throw new Error('Invalid client: client is invalid'); }
+
+    // generate tokens
+    const accessToken = await this.oauth2Model.generateAccessToken(client, user, scope);
+    const refreshToken = await this.oauth2Model.generateRefreshToken(client, user, scope);
+
+    // set tokens' expiration dates
+    const accessTokenExpiresAt = new Date();
+    accessTokenExpiresAt.setSeconds(accessTokenExpiresAt.getSeconds() + this.ACCESS_TOKEN_LIFETIME);
+    const refreshTokenExpiresAt = new Date();
+    refreshTokenExpiresAt.setSeconds(refreshTokenExpiresAt.getSeconds() + this.REFRESH_TOKEN_LIFETIME);
+
+    // generate oauth token entity
+    const oauthToken = {
+      accessToken,
+      refreshToken,
+      scope,
+      accessTokenExpiresAt,
+      refreshTokenExpiresAt
+    } as any;
+
+    // save new oauth token entity
+    return await this.oauth2Model.saveToken(oauthToken, client, user);
   }
 
   /**

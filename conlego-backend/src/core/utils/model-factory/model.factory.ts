@@ -8,8 +8,9 @@ import { IResourceModel, ModelDocumentType } from '@core/types';
 
 export class ModelFactory<T> {
 
-  private instance: T & IResourceModel;
+  private collectionName: string;
   private instanceSchema: Schema<T>;
+  private instance: T & IResourceModel;
   private schemaOptions: SchemaOptions;
   private instanceModel: Model<ModelDocumentType<T>>;
   private tConstructor: new () => T & IResourceModel;
@@ -27,6 +28,7 @@ export class ModelFactory<T> {
     this.tConstructor = tConstructor;
     this.schemaOptions = schemaOptions;
     this.instance = new this.tConstructor();
+    this.collectionName = this.instance.constructor.name;
   }
 
   /**
@@ -37,13 +39,9 @@ export class ModelFactory<T> {
   public getModel(): Model<ModelDocumentType<T>, {}> {
     if (this.instanceModel) { return this.instanceModel; }
 
-    const collectionName = this.instance.constructor.name;
     const schema = this.instanceSchema || this.getSchema();
-    // this.instanceModel = model<ModelDocumentType<T>>(collectionName, schema, collectionName);
-    this.instanceModel = addModelToTypegoose(
-      model<ModelDocumentType<T>>(collectionName, schema, collectionName),
-      this.tConstructor
-    );
+    this.instanceModel = model<ModelDocumentType<T>>(this.collectionName, schema, this.collectionName);
+
     return this.instanceModel;
   }
 
@@ -57,7 +55,14 @@ export class ModelFactory<T> {
 
     // build schema based on typegoose annotations
     // override default schema options if are provided
-    this.instanceSchema = buildSchema<T, any>(this.tConstructor, { ...defaultSchemaOptions, ...this.schemaOptions });
+    this.instanceSchema = buildSchema<T, any>(
+      this.tConstructor,
+      {
+        ...defaultSchemaOptions,
+        collection: this.collectionName,
+        ...this.schemaOptions
+      }
+    );
 
     // Add static method returning readonly properties
     this.instanceSchema.static('getReadonlyProperties', () => this.instance.readonly || []);
