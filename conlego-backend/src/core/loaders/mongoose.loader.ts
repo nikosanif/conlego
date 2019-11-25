@@ -1,6 +1,8 @@
 import _ from 'lodash';
 import { Db } from 'mongodb';
-import { connect, ConnectionOptions } from 'mongoose';
+import mongoose from 'mongoose';
+// tslint:disable-next-line: no-var-requires
+require('../utils/mongoose-schema-jsonschema')(mongoose);
 import { config } from '@config';
 import { ILoader } from '@core/types';
 import { logger } from '@core/utils/logger';
@@ -17,7 +19,7 @@ export class MongooseLoader implements ILoader {
   public async load(): Promise<Db> {
     try {
       // set default options of mongo client
-      const defaultOptions: ConnectionOptions = {
+      const defaultOptions: mongoose.ConnectionOptions = {
         useNewUrlParser: true,            // make all connections set the useNewUrlParser option
         useFindAndModify: false,          // use native `findOneAndUpdate()` rather than `findAndModify()`
         useCreateIndex: true,             // Automatic index builds
@@ -35,7 +37,7 @@ export class MongooseLoader implements ILoader {
       const options = _.merge(defaultOptions, config.mongo.options);
 
       // Connect to DB
-      const connection = await connect(config.mongo.uri, options);
+      const connection = await mongoose.connect(config.mongo.uri, options);
       return connection.connection.db;
 
     } catch (e) {

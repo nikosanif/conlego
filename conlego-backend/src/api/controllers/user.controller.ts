@@ -5,6 +5,7 @@ import { IUser, UserModel } from '@app/models';
 import { ICrudRouteOptions } from '@core/types';
 import { AuthenticatedMiddleware } from '@core/middlewares';
 import { ResourceController } from '@core/utils/resource-controller';
+import { genericValidator } from '@app/core/validation';
 
 /**
  * User Controller
@@ -104,10 +105,10 @@ export class UserController extends ResourceController<IUser> {
 
     // override crud routes with auth middleware
     options = [
-      { operation: 'create', middleware: [] },
+      { operation: 'create', middleware: [genericValidator.validate(UserModel, ['salt'])] },
       { operation: 'index', middleware: [AuthenticatedMiddleware()] },
       { operation: 'show', middleware: [AuthenticatedMiddleware()] },
-      { operation: 'update', middleware: [AuthenticatedMiddleware()] },
+      { operation: 'update', middleware: [AuthenticatedMiddleware(), genericValidator.validate(UserModel, ['salt', 'password'])] },
       { operation: 'delete', middleware: [AuthenticatedMiddleware()] },
     ];
     router.use(super.applyRoutes(options));

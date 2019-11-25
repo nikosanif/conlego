@@ -1,10 +1,13 @@
 import crypto from 'crypto';
-import { pre, prop } from '@typegoose/typegoose';
+import { pre, prop, index } from '@typegoose/typegoose';
 import { ModelFactory } from '@core/utils/model-factory';
 import { IResourceModel, ModelDocumentType } from '@core/types';
 
-
+// ------------------  HOOKS ---------------
 @pre<User>('save', handlePasswordChangeHook)
+// ------------------  INDEXES -------------
+@index({ email: 1 }, { unique: true })
+@index({ email: 1, password: -1 })
 class User implements IResourceModel {
 
   public hidden: string[] = ['password', 'salt'];
@@ -13,13 +16,13 @@ class User implements IResourceModel {
   // ------------------------------------------
   // #region Instance properties
 
-  @prop({ required: true })
+  @prop({ required: true, maxLength: 35 })
   public firstName: string;
 
-  @prop({ required: true })
+  @prop({ required: true, maxLength: 35 })
   public lastName: string;
 
-  @prop({ required: true, unique: true, })
+  @prop({ required: true, unique: true, maxLength: 35, lowercase: true, trim: true,  match: /^(([^<>()\[\]\\\\.,;:#\s@"]+(\.[^<>()\[\]\\\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/ })
   public email: string;
 
   @prop({ required: true })
@@ -30,6 +33,9 @@ class User implements IResourceModel {
 
   @prop()
   public role?: string;
+
+  public createdAt: Readonly<Date>;
+  public updatedAt: Readonly<Date>;
 
   // #endregion Instance properties
   // ------------------------------------------
@@ -75,7 +81,7 @@ class User implements IResourceModel {
   public makeSalt(byteSize: number = 16): Promise<string> {
     return new Promise((resolve, reject) => {
 
-      crypto.randomBytes(byteSize, (err, salt) => {
+      crypto.randomBytes(byteSize, (err: any, salt: any) => {
         if (err) { return reject(err); }
 
         return resolve(salt.toString('base64'));
